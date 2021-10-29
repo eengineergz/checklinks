@@ -27,21 +27,21 @@ QUnit.test("test the rtrim function", assert => {
 QUnit.module("Generic DOM functions", {
   beforeEach() {
     // prepare something for all following tests
-    var moduleContainer = document.createElement('div');
+    const moduleContainer = document.createElement('div');
     moduleContainer.id = 'moduleContainer';
     document.getElementById("qunit-fixture").appendChild(moduleContainer);
     
-    var moduleElement1 = document.createElement('div');
+    const moduleElement1 = document.createElement('div');
     moduleElement1.className = 'moduleclass';
     moduleElement1.id = 'moduleElement1';
     document.getElementById("qunit-fixture").appendChild(moduleElement1);
 
-    var moduleElement2 = document.createElement('div');
+    const moduleElement2 = document.createElement('div');
     moduleElement2.className = 'moduleclass';
     moduleElement2.id = 'moduleElement2';
     document.getElementById("qunit-fixture").appendChild(moduleElement2);
 
-    var moduleElement3 = document.createElement('div');
+    const moduleElement3 = document.createElement('div');
     moduleElement3.className = 'othermoduleclass';
     moduleElement3.id = 'moduleElement3';
     document.getElementById("qunit-fixture").appendChild(moduleElement3);
@@ -55,7 +55,7 @@ QUnit.module("Generic DOM functions", {
 });
 
 QUnit.test("test the removeDOMElement function", assert => {
-    var exists;
+    let exists;
     exists = document.getElementById('moduleContainer');
     assert.notEqual(exists, null, "element exists");
     removeDOMElement('moduleContainer');
@@ -67,7 +67,7 @@ QUnit.test("test the removeDOMElement function", assert => {
 });
 
 QUnit.test("test the removeElementsByClass function", assert => {
-    var exists;
+    let exists;
     removeElementsByClass('moduleclass');
 
     exists = document.getElementById('moduleElement3');
@@ -94,11 +94,11 @@ QUnit.test("test the removeClassFromElements function", assert => {
 QUnit.test("test the create function", assert => {
     assert.equal($("[id=createdElement]").length,0,"Created element does not exist until create is called");
     assert.equal($("[id=htmlElement]").length,0,"HTML element does not exist until create is called");
-    var createdElement = create("div", {
+    const createdElement = create("div", {
         id: "createdElement",
         innerText:"This is innerText"
     });
-    var htmlElement = create("div", {
+    const htmlElement = create("div", {
         id: "htmlElement",
         innerHTML:"<p>This is innerHTML</p>",
         class:"class1 class2"
@@ -144,7 +144,7 @@ QUnit.test("test the isLinkValid function", function(assert) {
 });
 
 QUnit.test("test the shouldDOMbeParsed function", assert => {
-    var checkType = "GET";
+    let checkType = "GET";
     assert.equal(shouldDOMbeParsed("http://www.example.com","false",checkType), false, "DOM should not be parsed when setting is 'false' regardless of URL");
     assert.equal(shouldDOMbeParsed("http://www.example.com#elementID","false",checkType), false, "DOM should not be parsed when setting is 'false' regardless of URL");
     assert.equal(shouldDOMbeParsed("http://www.example.com","true",checkType), false, "DOM should not be parsed when url does not contain hashtag");
@@ -163,7 +163,7 @@ QUnit.test("test the shouldDOMbeParsed function", assert => {
 });
 
 QUnit.test("test the XHRisNecessary function", assert => {
-    var stub = sinon.stub(window,"shouldDOMbeParsed");
+    const stub = sinon.stub(window,"shouldDOMbeParsed");
     stub.returns(false);
     XHRisNecessary({cache:"false"},"http://example.com/");
     assert.ok(shouldDOMbeParsed.called);
@@ -208,7 +208,7 @@ QUnit.test("test the createDisplay function", function(assert) {
 
 QUnit.test("test the clearDisplay function", function(assert) {
     createDisplay(this.optURL,this.cache,this.checkType);
-    var aLink = document.createElement('div');
+    const aLink = document.createElement('div');
     aLink.className = 'CMY_Link';
     document.getElementById("qunit-fixture").appendChild(aLink);
     assert.equal($(".CMY_Link").length, 1, "One Link has been created.");
@@ -222,11 +222,11 @@ QUnit.test("test the clearDisplay function", function(assert) {
 QUnit.module("Warnings");
 
 QUnit.test("test the warnings functions", assert => {
-    var link = document.createElement('a');
+    const link = document.createElement('a');
     link.setAttribute('href', 'http://example.com/');
-    var emptyLink = document.createElement('a');
+    const emptyLink = document.createElement('a');
     emptyLink.setAttribute('href', "");
-    var noHrefLink = document.createElement('a');
+    const noHrefLink = document.createElement('a');
 
     document.getElementById("qunit-fixture").appendChild(link);
     document.getElementById("qunit-fixture").appendChild(emptyLink);
@@ -356,8 +356,8 @@ QUnit.test("test the getOption function do not default", assert => {
 QUnit.test("test the getOption function Defaults", assert => {
     window.localStorage.getItem.returns("null");
     // Mock out chrome extension
-    var mock = sinon.mock(chrome.extension);
-    var expectation = mock.expects("getURL").withExactArgs("options.html").atLeast(1).returns("[optionspage]");
+    const mock = sinon.mock(chrome.extension);
+    const expectation = mock.expects("getURL").withExactArgs("options.html").atLeast(1).returns("[optionspage]");
     assert.equal(getOption("blacklist"), "googleleads.g.doubleclick.net\n" +
                     "doubleclick.net\n" +
                     "googleadservices.com\n" +
@@ -405,12 +405,12 @@ QUnit.module("OnRequest function", {
 QUnit.test("test the onrequest function make sure addLink is called when cache is true and response is 200:", assert => {
     window.getOption = sandbox.stub().returns("true");
     window.XHRisNecessary = sandbox.stub().returns(true);    
-    var spy = sandbox.spy(indexedDBHelper,"addLink");
+    const spy = sandbox.spy(indexedDBHelper,"addLink");
     window.check = sandbox.stub().returns(new Promise((resolve, reject) => {resolve({status:200,document:null,source:"xhr"});}));
     onRequest({action:"check",url:"http://example.com/"},null,() => {});
     assert.ok(window.getOption.called);
     assert.ok(window.XHRisNecessary.called);
-    var promise = check("http://example.com");
+    const promise = check("http://example.com");
     return promise.then(data => {
         assert.ok(check.called);
         assert.deepEqual(data, {status:200,document:null,source:"xhr"}, "assert stubbed xhr promise return");
@@ -421,12 +421,12 @@ QUnit.test("test the onrequest function make sure addLink is called when cache i
 QUnit.test("test the onrequest function make sure addLink is not called when cache is true and response is 404:", assert => {
     window.getOption = sandbox.stub().returns("true");
     window.XHRisNecessary = sandbox.stub().returns(true);    
-    var spy = sandbox.spy(indexedDBHelper,"addLink");
+    const spy = sandbox.spy(indexedDBHelper,"addLink");
     window.check = sandbox.stub().returns(new Promise((resolve, reject) => {resolve({status:404,document:null,source:"xhr"});}));
     onRequest({action:"check",url:"http://example.com/"},null,() => {});
     assert.ok(window.getOption.called);
     assert.ok(window.XHRisNecessary.called);
-    var promise = check("http://example.com");
+    const promise = check("http://example.com");
     return promise.then(data => {
         assert.ok(check.called);
         assert.deepEqual(data, {status:404,document:null,source:"xhr"} ,"assert stubbed xhr promise return");
@@ -437,12 +437,12 @@ QUnit.test("test the onrequest function make sure addLink is not called when cac
 QUnit.test("test the onrequest function make sure addLink is not called when cache is false and response is 200:", assert => {
     window.getOption = sandbox.stub().returns("false");
     window.XHRisNecessary = sandbox.stub().returns(true);    
-    var spy = sandbox.spy(indexedDBHelper,"addLink");
+    const spy = sandbox.spy(indexedDBHelper,"addLink");
     window.check = sandbox.stub().returns(new Promise((resolve, reject) => {resolve({status:200,document:null,source:"xhr"});}));
     onRequest({action:"check",url:"http://example.com/"},null,() => {});
     assert.ok(window.getOption.called);
     assert.ok(window.XHRisNecessary.called);
-    var promise = check("http://example.com");
+    const promise = check("http://example.com");
     return promise.then(data => {
         assert.ok(check.called);
         assert.deepEqual(data, {status:200,document:null,source:"xhr"}, "assert stubbed xhr promise return");
@@ -453,12 +453,12 @@ QUnit.test("test the onrequest function make sure addLink is not called when cac
 QUnit.test("test the onrequest function make sure getLink is called when cache is true and addLink is not called when not found:", assert => {
     window.getOption = sandbox.stub().returns("true");
     window.XHRisNecessary = sandbox.stub().returns(false);    
-    var stub = sandbox.stub(indexedDBHelper,"getLink").returns(new Promise((resolve, reject) => {resolve(500);}));    
+    const stub = sandbox.stub(indexedDBHelper,"getLink").returns(new Promise((resolve, reject) => {resolve(500);}));    
     window.check = sandbox.stub().returns(new Promise((resolve, reject) => {resolve({status:200,document:null,source:"xhr"});}));
     onRequest({action:"check",url:"http://example.com/"},null,() => {});
     assert.ok(window.getOption.called);
     assert.ok(window.XHRisNecessary.called);
-    var promise = check("http://example.com");
+    const promise = check("http://example.com");
     return promise.then(data => {
         assert.ok(check.called);
         assert.deepEqual(data, {status:200,document:null,source:"xhr"}, "assert stubbed xhr promise return");
@@ -469,12 +469,12 @@ QUnit.test("test the onrequest function make sure getLink is called when cache i
 QUnit.test("test the onrequest function make sure getLink is called when cache is true and addLink is called when found 200:", assert => {
     window.getOption = sandbox.stub().returns("true");
     window.XHRisNecessary = sandbox.stub().returns(false);    
-    var stub = sandbox.stub(indexedDBHelper,"getLink").returns(new Promise((resolve, reject) => {resolve({status:200});}));    
+    const stub = sandbox.stub(indexedDBHelper,"getLink").returns(new Promise((resolve, reject) => {resolve({status:200});}));    
     window.check = sandbox.stub().returns(new Promise((resolve, reject) => {resolve({status:200,document:null,source:"xhr"});}));
     onRequest({action:"check",url:"http://example.com/"},null,() => {});
     assert.ok(window.getOption.called);
     assert.ok(window.XHRisNecessary.called);
-    var promise = check("http://example.com");
+    const promise = check("http://example.com");
     return promise.then(data => {
         assert.ok(check.called);
         assert.deepEqual(data, {status:200,document:null,source:"xhr"}, "assert stubbed xhr promise return");

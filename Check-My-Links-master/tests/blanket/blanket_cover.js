@@ -1,8 +1,8 @@
-var inBrowser = typeof exports === 'undefined';
-var parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").falafel);
+const inBrowser = typeof exports === 'undefined';
+const parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").falafel);
 
 (inBrowser ? window : exports).blanket = (() => {
-    var linesToAddTracking = [
+    const linesToAddTracking = [
         "ExpressionStatement",
         "LabeledStatement"   ,
         "BreakStatement"   ,
@@ -21,7 +21,7 @@ var parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").fala
         "WithStatement"
     ];
 
-    var linesToAddBrackets = [
+    const linesToAddBrackets = [
         "IfStatement"       ,
         "WhileStatement"    ,
         "DoWhileStatement"      ,
@@ -30,12 +30,12 @@ var parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").fala
         "WithStatement"
     ];
 
-    var covVar = (inBrowser ?   "window._$blanket" : "_$jscoverage" );
-    var __blanket;
-    var copynumber = Math.floor(Math.random()*1000);
-    var coverageInfo = {};
+    const covVar = (inBrowser ?   "window._$blanket" : "_$jscoverage" );
+    let __blanket;
+    const copynumber = Math.floor(Math.random()*1000);
+    const coverageInfo = {};
 
-    var options = {
+    const options = {
         reporter: null,
         adapter:null,
         filter: null,
@@ -68,7 +68,7 @@ var parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").fala
         },
         _extend(dest, source) {
           if (source) {
-            for (var prop in source) {
+            for (const prop in source) {
               if ( dest[prop] instanceof Object && typeof dest[prop] !== "function"){
                 _blanket._extend(dest[prop],source[prop]);
               }else{
@@ -86,12 +86,12 @@ var parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").fala
                 options[key]=value;
             }
         },
-        instrument(config, next) {
-            var inFile = config.inputFile;
-            var inFileName = config.inputFileName;
-            var sourceArray = _blanket._prepareSource(inFile);
+        instrument({inputFile, inputFileName}, next) {
+            const inFile = inputFile;
+            const inFileName = inputFileName;
+            const sourceArray = _blanket._prepareSource(inFile);
             _blanket._trackingArraySetup=[];
-            var instrumented =  parseAndModify(inFile,{loc:true,comment:true}, _blanket._addTracking,inFileName);
+            let instrumented =  parseAndModify(inFile,{loc:true,comment:true}, _blanket._addTracking,inFileName);
             instrumented = _blanket._trackingSetup(inFileName,sourceArray)+instrumented;
             next(instrumented);
         },
@@ -101,46 +101,46 @@ var parseAndModify = (inBrowser ? window.falafel : require("./lib/falafel").fala
         },
         _trackingSetup(filename, sourceArray) {
             
-            var sourceString = sourceArray.join("',\n'");
-            var intro = "if (typeof "+covVar+" === 'undefined') "+covVar+" = {};\n";
-            intro += "if (typeof "+covVar+"['"+filename+"'] === 'undefined'){";
+            const sourceString = sourceArray.join("',\n'");
+            let intro = `if (typeof ${covVar} === 'undefined') ${covVar} = {};\n`;
+            intro += `if (typeof ${covVar}['${filename}'] === 'undefined'){`;
             
-            intro += covVar+"['"+filename+"']=[];\n";
-            intro += covVar+"['"+filename+"'].source=['"+sourceString+"'];\n";
+            intro += `${covVar}['${filename}']=[];\n`;
+            intro += `${covVar}['${filename}'].source=['${sourceString}'];\n`;
             //initialize array values
             _blanket._trackingArraySetup.sort((a, b) => parseInt(a,10) > parseInt(b,10)).forEach(item => {
-                intro += covVar+"['"+filename+"']["+item+"]=0;\n";
+                intro += `${covVar}['${filename}'][${item}]=0;\n`;
             });
 
             intro += "}";
             return intro;
         },
-        _blockifyIf(node) {
+        _blockifyIf({type, consequent, body, alternate}) {
             
-            if (linesToAddBrackets.indexOf(node.type) > -1){
-                var bracketsExistObject = node.consequent || node.body;
-                var bracketsExistAlt = node.alternate;
+            if (linesToAddBrackets.includes(type)){
+                const bracketsExistObject = consequent || body;
+                const bracketsExistAlt = alternate;
                 if( bracketsExistAlt && bracketsExistAlt.type !== "BlockStatement") {
-                    bracketsExistAlt.update("{\n"+bracketsExistAlt.source()+"}\n");
+                    bracketsExistAlt.update(`{\n${bracketsExistAlt.source()}}\n`);
                 }
                 if( bracketsExistObject && bracketsExistObject.type !== "BlockStatement") {
-                    bracketsExistObject.update("{\n"+bracketsExistObject.source()+"}\n");
+                    bracketsExistObject.update(`{\n${bracketsExistObject.source()}}\n`);
                 }
             }
         },
         _addTracking(node, filename) {
             _blanket._blockifyIf(node);
-            if (linesToAddTracking.indexOf(node.type) > -1){
+            if (linesToAddTracking.includes(node.type)){
                 if (node.type === "VariableDeclaration" &&
                     (node.parent.type === "ForStatement" || node.parent.type === "ForInStatement")){
                     return;
                 }
                 if (node.loc && node.loc.start){
-                    node.update(covVar+"['"+filename+"']["+node.loc.start.line+"]++;\n"+node.source());
+                    node.update(`${covVar}['${filename}'][${node.loc.start.line}]++;\n${node.source()}`);
                     _blanket._trackingArraySetup.push(node.loc.start.line);
                 }else{
                     //I don't think we can handle a node with no location
-                    throw new Error("The instrumenter encountered a node with no location: "+Object.keys(node));
+                    throw new Error(`The instrumenter encountered a node with no location: ${Object.keys(node)}`);
                 }
             }
         },

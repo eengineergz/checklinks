@@ -1,28 +1,28 @@
 // Check My Links by Paul Livingstone
 // @ocodia
-var logging = false;
+const logging = false;
 String.prototype.startsWith = function (text) {
     return this.substr(0, text.length) == text;
 };
 
 String.prototype.contains = function (text) {
-    return this.indexOf(text) !== -1;
+    return this.includes(text);
 };
 
 String.prototype.rtrim = function (s) {
-    return this.replace(new RegExp(s + "*$"), '');
+    return this.replace(new RegExp(`${s}*$`), '');
 };
 
 function removeClassFromElements(classname) {
-    var x = document.getElementsByClassName(classname);
-    var i;
+    const x = document.getElementsByClassName(classname);
+    let i;
     for (i = 0; i < x.length; i++) {
         x[i].classList.remove(classname);
     }
 }
 
 function removeElementsByClass(className) {
-    var elements = document.getElementsByClassName(className);
+    const elements = document.getElementsByClassName(className);
     while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0]);
     }
@@ -34,24 +34,24 @@ function removeDOMElement(id) {
     }
 }
 
-function isLinkValid(link, request, blacklist) {
-    var url = link.href;
-    var rel = link.rel;
-    var blacklisted = false;
+function isLinkValid(link, {nf}, blacklist) {
+    const url = link.href;
+    const rel = link.rel;
+    let blacklisted = false;
     if (url.startsWith('chrome-extension://')) {
         return false;
-    } else if ((request.nf == 'false' && rel == "nofollow") || (url.startsWith('http') === false && url.length !== 0)) {
-        console.log("Skipped: " + url);
+    } else if ((nf == 'false' && rel == "nofollow") || (url.startsWith('http') === false && url.length !== 0)) {
+        console.log(`Skipped: ${url}`);
         return false;
     } else {
-        for (var b = 0; b < blacklist.length; b++) {
+        for (let b = 0; b < blacklist.length; b++) {
             if (blacklist[b] !== "" && url.contains(blacklist[b])) {
                 blacklisted = true;
             }
         }
 
         if (blacklisted === true) {
-            console.log("Skipped (blacklisted): " + url);
+            console.log(`Skipped (blacklisted): ${url}`);
             return false;
         }
         return true;
@@ -128,17 +128,17 @@ function createDisplay(optURL, cacheType, checkType) {
     });
     rbSettings = create("div", {
         id: "CMY_RB_Settings",
-        innerHTML: "<a href='" + optURL + "' target='_blank'></a>"
+        innerHTML: `<a href='${optURL}' target='_blank'></a>`
     });
     rbOption1 = create("div", {
         id: "CMY_RB_Cache",
         class: "CMY_RB_LC_Left CMY_RB_Meta",
-        innerHTML: "Caching: " + cacheType.toString().toUpperCase()
+        innerHTML: `Caching: ${cacheType.toString().toUpperCase()}`
     });
     rbOption2 = create("div", {
         id: "CMY_RB_RequestType",
         class: "CMY_RB_LC_Right CMY_RB_Meta",
-        innerHTML: "Method: " + checkType.toString()
+        innerHTML: `Method: ${checkType.toString()}`
     });
 
     // Appending Elements
@@ -163,41 +163,41 @@ function updateDisplay(link, warnings, linkStatus) {
     if (!isNaN(linkStatus) && 200 <= linkStatus && linkStatus < 300 && warnings.length === 0) {
         link.classList.add("CMY_Valid");
         passed += 1;
-        rbPass.innerHTML = "Valid links: " + passed;
+        rbPass.innerHTML = `Valid links: ${passed}`;
     } else if (!isNaN(linkStatus) && 300 <= linkStatus && linkStatus < 400 && warnings.length === 0) {
         link.classList.add("CMY_Redirect");
         link.classList.add("CMY_Valid");
         redirected += 1;
-        rbRedirect.innerHTML = "Valid redirecting links: " + redirected;
+        rbRedirect.innerHTML = `Valid redirecting links: ${redirected}`;
     } else if (!isNaN(linkStatus) && 200 <= linkStatus && linkStatus < 400 && warnings.length > 0) {
-        var response;
-        response = "Response " + linkStatus + ": " + link.href + " Warning: ";
-        for (var i = 0; i < warnings.length; i++) {
+        let response;
+        response = `Response ${linkStatus}: ${link.href} Warning: `;
+        for (let i = 0; i < warnings.length; i++) {
             response += warnings[i];
             if (i < warnings.length - 1) {
                 response += ",";
             }
         }
         link.classList.add("CMY_Warning");
-        link.innerHTML += " <span class=\"CMY_Response\">" + linkStatus + "</span>";
+        link.innerHTML += ` <span class="CMY_Response">${linkStatus}</span>`;
         warning += 1;
-        rbWarning.innerHTML = "Warnings: " + warning;
+        rbWarning.innerHTML = `Warnings: ${warning}`;
         console.log(response);
     } else {
-        console.log("Response " + linkStatus + ": " + link.href);
+        console.log(`Response ${linkStatus}: ${link.href}`);
         link.classList.add("CMY_Invalid");
-        link.innerHTML += " <span class=\"CMY_Response\">" + linkStatus + "</span>";
+        link.innerHTML += ` <span class="CMY_Response">${linkStatus}</span>`;
         invalid += 1;
-        rbFail.innerHTML = "Invalid links: " + invalid;
+        rbFail.innerHTML = `Invalid links: ${invalid}`;
     }
     queued -= 1;
     checked += 1;
-    rbQueue.innerHTML = "Queue: " + queued;
+    rbQueue.innerHTML = `Queue: ${queued}`;
 }
 
 function create(name, props) {
-    var el = document.createElement(name);
-    for (var p in props) {
+    const el = document.createElement(name);
+    for (const p in props) {
         if (p == "innerText") {
             el.innerText = props[p];
         } else if (p == "innerHTML") {
@@ -219,13 +219,13 @@ function shouldDOMbeParsed(url, parseDOMoption, checkTypeOption) {
 }
 
 // Timeout for each link is 30+1 seconds
-var timeout = 30000;
+let timeout = 30000;
 
 function check(url) {
-    var response = { status: null, document: null };
+    const response = { status: null, document: null };
     return new Promise((resolve, reject) => {
-        var XMLHttpTimeout = null;
-        var xhr = new XMLHttpRequest();
+        let XMLHttpTimeout = null;
+        const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = data => {
             if (xhr.readyState == 4) {
                 log(xhr);
@@ -261,25 +261,25 @@ function check(url) {
     });
 }
 
-function XHRisNecessary(options, url) {
-    if (shouldDOMbeParsed(url, options.parseDOM, options.checkType) === true || options.cache == 'false') {
+function XHRisNecessary({parseDOM, checkType, cache}, url) {
+    if (shouldDOMbeParsed(url, parseDOM, checkType) === true || cache == 'false') {
         return true;
     }
     return false;
 }
 
-function getTrailingHashWarning(options, link, warnings) {
-    if (options.trailingHash == 'true') {
-        if (link.href.lastIndexOf("#") == link.href.length - 1 && link.href.lastIndexOf("#") >= 0) {
+function getTrailingHashWarning({trailingHash}, {href}, warnings) {
+    if (trailingHash == 'true') {
+        if (href.lastIndexOf("#") == href.length - 1 && href.lastIndexOf("#") >= 0) {
             warnings.push("Link has a trailing hash");
         }
     }
     return warnings;
 }
 
-function getEmptyLinkWarning(options, link, warnings) {
+function getEmptyLinkWarning({emptyLink}, link, warnings) {
     // link is the outerHTML
-    if (options.emptyLink == 'true') {
+    if (emptyLink == 'true') {
         if (new RegExp(/(([^>]+href\s*=\s*"\s*?")|([^>]+href\s*=\s*'\s*?'))/i).test(link)) {
             warnings.push("Link is empty");
         }
@@ -288,8 +288,8 @@ function getEmptyLinkWarning(options, link, warnings) {
 }
 
 // Not utilized yet, would need to allow length 0 to be a valid link and then filter it out from trying to send an XHR request
-function getNoHrefLinkWarning(options, link, warnings) {
-    if (options.noHrefAttr == 'true') {
+function getNoHrefLinkWarning({noHrefAttr}, link, warnings) {
+    if (noHrefAttr == 'true') {
         if (!link.hasAttribute("href")) {
             warnings.push("Link does not have an href attribute");
         }
@@ -297,12 +297,12 @@ function getNoHrefLinkWarning(options, link, warnings) {
     return warnings;
 }
 
-function getParseDOMWarning(options, url, response, warnings) {
-    if (options.parseDOM == 'true') {
+function getParseDOMWarning({parseDOM}, url, response, warnings) {
+    if (parseDOM == 'true') {
         if (200 <= response.status && response.status < 400) {
-            var parser = new DOMParser();
-            var responseDoc = parser.parseFromString(response.document, "text/html");
-            var fragID;
+            const parser = new DOMParser();
+            const responseDoc = parser.parseFromString(response.document, "text/html");
+            let fragID;
             if (url.lastIndexOf("#") !== -1 && url.lastIndexOf("#") < url.length - 1) {
                 fragID = url.substring(url.lastIndexOf("#") + 1, url.length);
                 log("fragID");
@@ -322,38 +322,38 @@ function getParseDOMWarning(options, url, response, warnings) {
 // OPTIONS: Set items in localstore
 function setItem(key, value) {
     try {
-        log("Inside setItem:" + key + ":" + value);
+        log(`Inside setItem:${key}:${value}`);
         window.localStorage.removeItem(key);
         window.localStorage.setItem(key, value);
     } catch (e) {
         log("Error inside setItem");
         log(e);
     }
-    log("Return from setItem" + key + ":" + value);
+    log(`Return from setItem${key}:${value}`);
 }
 
 // OPTIONS: Get items from localstore
 function getItem(key) {
-    var value;
-    log('Get Item:' + key);
+    let value;
+    log(`Get Item:${key}`);
     try {
         value = window.localStorage.getItem(key);
         if (typeof value === 'undefined') {
             return null;
         }
     } catch (e) {
-        log("Error inside getItem() for key:" + key);
+        log(`Error inside getItem() for key:${key}`);
         log(e);
         value = null;
     }
 
-    log("Returning value: " + value);
+    log(`Returning value: ${value}`);
     return value;
 }
 
 function getOption(key) {
-    var value;
-    var defaultOptions = {
+    let value;
+    const defaultOptions = {
         blacklist: "googleleads.g.doubleclick.net\n" +
             "doubleclick.net\n" +
             "googleadservices.com\n" +
@@ -395,7 +395,7 @@ function log(txt) {
 }
 
 function getOptions() {
-    var options = {};
+    const options = {};
     options.blacklist = getOption("blacklist");
     options.checkType = getOption("checkType");
     options.cache = getOption("cache");
@@ -409,18 +409,18 @@ function getOptions() {
     return options;
 }
 
-function onRequest(request, sender, callback) {
-    if (request.action == "check") {
-        if (request.url) {
-            var options = getOptions();
-            var promise;
-            var response = { status: null, document: null };
-            if (XHRisNecessary(options, request.url) === true) {
-                check(request.url)
+function onRequest({action, url}, sender, callback) {
+    if (action == "check") {
+        if (url) {
+            const options = getOptions();
+            let promise;
+            let response = { status: null, document: null };
+            if (XHRisNecessary(options, url) === true) {
+                check(url)
                     .then(response => {
                         if (options.cache == 'true' && (200 <= response.status && response.status < 400)) {
                             // Add link to database
-                            indexedDBHelper.addLink(request.url, response.status);
+                            indexedDBHelper.addLink(url, response.status);
                         }
                         return new Promise((resolve, reject) => { resolve(response); });
                     })
@@ -429,20 +429,20 @@ function onRequest(request, sender, callback) {
                     });
             } else {
                 // Caching is true
-                indexedDBHelper.getLink(request.url).then(link => {
+                indexedDBHelper.getLink(url).then(link => {
                     if (typeof (link) != "undefined" && (200 <= link.status && link.status < 400)) {
                         log("found");
                         log(link);
                         response.status = link.status;
                     } else {
-                        response = check(request.url);
+                        response = check(url);
                     }
                     return new Promise((resolve, reject) => { resolve(response); });
                 })
                     .then(response => {
                         if ((response.source == "xhr") && (200 <= response.status && response.status < 400)) {
                             // Add link to database
-                            indexedDBHelper.addLink(request.url, response.status);
+                            indexedDBHelper.addLink(url, response.status);
                         }
                         return new Promise((resolve, reject) => { resolve(response); });
                     })

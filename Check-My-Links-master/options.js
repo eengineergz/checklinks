@@ -1,20 +1,20 @@
-var _gaq = _gaq || [];
+const _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-98457349-3']);
 _gaq.push(['_trackPageview']);
 
 (() => {
-  var ga = document.createElement('script');
+  const ga = document.createElement('script');
   ga.type = 'text/javascript';
   ga.async = true;
   ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0];
+  const s = document.getElementsByTagName('script')[0];
   s.parentNode.insertBefore(ga, s);
 })();
 
 function loadOptions() {
 
-  var bkg = chrome.runtime.getBackgroundPage(bkg => {
-    var options = bkg.getOptions();
+  const bkg = chrome.runtime.getBackgroundPage(bkg => {
+    const options = bkg.getOptions();
 
     if (options.cache == 'true') {
       document.getElementById("cache").checked = true;
@@ -44,10 +44,9 @@ function loadOptions() {
     }
 
     document.getElementById("blacklistEntries").value = options.blacklist.split(" ");
-    var requestType = document.getElementById("requestType");
+    const requestType = document.getElementById("requestType");
 
-    for (var i = 0; i < requestType.children.length; i++) {
-      var requestTypechild = requestType.children[i];
+    for (const requestTypechild of requestType.children) {
       if (requestTypechild.value == options.checkType) {
         requestTypechild.selected = "true";
         break;
@@ -57,9 +56,9 @@ function loadOptions() {
 }
 
 function saveOptions() {
-  var bkg = chrome.runtime.getBackgroundPage(bkg => {
-    var blacklistEntries = document.getElementById("blacklistEntries");
-    var requestType = document.getElementById("requestType");
+  const bkg = chrome.runtime.getBackgroundPage(bkg => {
+    const blacklistEntries = document.getElementById("blacklistEntries");
+    const requestType = document.getElementById("requestType");
 
     // Save selected options to localstore
     bkg.setItem("blacklist", blacklistEntries.value);

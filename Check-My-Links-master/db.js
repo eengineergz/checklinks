@@ -1,24 +1,24 @@
-var indexedDBHelper = (() => {
-  var db = null;
-  var lastIndex = 0;
+const indexedDBHelper = (() => {
+  let db = null;
+  let lastIndex = 0;
 
   function init() {
     //open the database
     indexedDBHelper.open();
   }
 
-  var open = () => {
-    var version = 1;
+  const open = () => {
+    const version = 1;
 
-    var promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       //Opening the DB
-      var request = indexedDB.open("CheckLinks", version);
+      const request = indexedDB.open("CheckLinks", version);
 
       //Will be called if the database is new or the version is modified
-      request.onupgradeneeded = e => {
-        db = e.target.result;
+      request.onupgradeneeded = ({target}) => {
+        db = target.result;
 
-        e.target.transaction.onerror = indexedDB.onerror;
+        target.transaction.onerror = indexedDB.onerror;
 
         //Deleting DB if already exists
         if(db.objectStoreNames.contains("links")) {
@@ -26,14 +26,14 @@ var indexedDBHelper = (() => {
         }
 
         //Creating a new DB store with a paecified key property
-        var store = db.createObjectStore("links",
+        const store = db.createObjectStore("links",
           {keyPath: "id"});
-        var linkIndex = store.createIndex("by_link", "link");
+        const linkIndex = store.createIndex("by_link", "link");
       };
 
       //If opening DB succeeds
-      request.onsuccess = e => {
-        db = e.target.result;
+      request.onsuccess = ({target}) => {
+        db = target.result;
         resolve();
       };
 
@@ -45,16 +45,16 @@ var indexedDBHelper = (() => {
     return promise;
   };
 
-  var addLink = (linkURL, linkstatus) => {
+  const addLink = (linkURL, linkstatus) => {
     //Creating a transaction object to perform read-write operations
-    var trans = db.transaction(["links"], "readwrite");
-    var store = trans.objectStore("links");
+    const trans = db.transaction(["links"], "readwrite");
+    const store = trans.objectStore("links");
     lastIndex++;
 
     //Wrapping logic inside a promise
-    var promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       //Sending a request to add an item
-      var request = store.put({
+      const request = store.put({
         "id": lastIndex,
         "link": linkURL,
         "timeStamp": new Date().getTime(),
@@ -67,8 +67,8 @@ var indexedDBHelper = (() => {
       };
 
       //error callback
-      request.onerror = e => {
-        console.log(e.value);
+      request.onerror = ({value}) => {
+        console.log(value);
         reject("Couldn't add the passed item");
       };
     });
@@ -76,22 +76,22 @@ var indexedDBHelper = (() => {
     return promise;
   };
 
-  var getAllLinks = () => {
-    var linksArr = [];
+  const getAllLinks = () => {
+    const linksArr = [];
     //Creating a transaction object to perform Read operations
-    var trans = db.transaction(["links"], "readonly");
+    const trans = db.transaction(["links"], "readonly");
     //Getting a reference of the link store
-    var store = trans.objectStore("links");
+    const store = trans.objectStore("links");
 
     //Wrapping all the logic inside a promise
-    var promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       //Opening a cursor to fetch items from lower bound in the DB
-      var keyRange = IDBKeyRange.lowerBound(0);
-      var cursorRequest = store.openCursor(keyRange);
+      const keyRange = IDBKeyRange.lowerBound(0);
+      const cursorRequest = store.openCursor(keyRange);
 
       //success callback
-      cursorRequest.onsuccess = e => {
-        var result = e.target.result;
+      cursorRequest.onsuccess = ({target}) => {
+        const result = target.result;
 
         //Resolving the promise with link items when the result id empty
         if(result === null || result === undefined){
@@ -115,12 +115,12 @@ var indexedDBHelper = (() => {
     return promise;
   };
 
-  var deleteObjectStore = id => {
+  const deleteObjectStore = id => {
     indexedDBHelper.open().then(() => {
-      var promise = new Promise((resolve, reject) => {
-        var trans = db.transaction(["links"], "readwrite");
-        var store = trans.objectStore("links");
-        var request = store.clear();
+      const promise = new Promise((resolve, reject) => {
+        const trans = db.transaction(["links"], "readwrite");
+        const store = trans.objectStore("links");
+        const request = store.clear();
 
         request.onsuccess = e => {
           resolve();
@@ -137,21 +137,21 @@ var indexedDBHelper = (() => {
     });
   };
 
-  var getLink = url => {
-    var linksArr = [];
+  const getLink = url => {
+    const linksArr = [];
     //Creating a transaction object to perform Read operations
-    var trans = db.transaction(["links"], "readonly");
+    const trans = db.transaction(["links"], "readonly");
     //Getting a reference of the link store
-    var store = trans.objectStore("links");
+    const store = trans.objectStore("links");
 
     //Wrapping all the logic inside a promise
-    var promise = new Promise((resolve, reject) => {
-      var index = store.index("by_link");
-      var request = index.get(url);
+    const promise = new Promise((resolve, reject) => {
+      const index = store.index("by_link");
+      const request = index.get(url);
 
       //success callback
-      request.onsuccess = e => {
-        var result = e.target.result;
+      request.onsuccess = ({target}) => {
+        const result = target.result;
         resolve(result);
       };
 
@@ -163,12 +163,12 @@ var indexedDBHelper = (() => {
     return promise;
   };
 
-  var deleteLink = id => {
+  const deleteLink = id => {
 
-    var promise = new Promise((resolve, reject) => {
-      var trans = db.transaction(["links"], "readwrite");
-      var store = trans.objectStore("links");
-      var request = store.delete(id);
+    const promise = new Promise((resolve, reject) => {
+      const trans = db.transaction(["links"], "readwrite");
+      const store = trans.objectStore("links");
+      const request = store.delete(id);
 
       request.onsuccess = e => {
         resolve();
