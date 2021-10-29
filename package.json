@@ -1,0 +1,26 @@
+{
+  "name": "checklinks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eengineergz/checklinks.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eengineergz/checklinks/issues"
+  },
+  "homepage": "https://github.com/eengineergz/checklinks#readme",
+  "devDependencies": {
+    "broken-link-checker": "^0.7.8"
+  },
+  "dependencies": {
+    "normalize-html-whitespace": "^1.0.0",
+    "walk-parse5": "^2.0.0"
+  }
+}
